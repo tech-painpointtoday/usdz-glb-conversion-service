@@ -1,0 +1,19 @@
+[Unit]
+Description=USDZ to GLB Conversion Service
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/usdz-converter
+ExecStart=/usr/bin/python3 /home/ubuntu/usdz-converter/converter.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Environment
+Environment="PYTHONUNBUFFERED=1"
+
+[Install]
+WantedBy=multi-user.target

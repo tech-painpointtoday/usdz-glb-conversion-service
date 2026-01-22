@@ -1,0 +1,58 @@
+🚀 QUICK START - Build on EC2
+================================
+
+1️⃣ LAUNCH EC2
+   - Go to: https://console.aws.amazon.com/ec2
+   - Launch instance → Amazon Linux 2023 → t3.medium
+   - Click "Launch"
+
+2️⃣ CONNECT
+   - Select instance → Click "Connect" → Use "EC2 Instance Connect"
+
+3️⃣ SETUP DOCKER (paste in EC2 terminal)
+   
+sudo yum update -y && sudo yum install -y docker && sudo systemctl start docker && sudo usermod -a -G docker ec2-user && newgrp docker
+
+4️⃣ CONFIGURE AWS
+   
+aws configure
+   (Enter your Access Key, Secret Key, region: ap-southeast-1)
+
+5️⃣ CREATE FILES (paste entire block)
+
+mkdir ~/lambda-build && cd ~/lambda-build
+
+cat > lambda_function.py << 'ENDFILE'
+[Open EC2-SETUP-GUIDE.md and copy the lambda_function.py content]
+ENDFILE
+
+cat > Dockerfile << 'ENDFILE'
+[Open EC2-SETUP-GUIDE.md and copy the Dockerfile content]
+ENDFILE
+
+6️⃣ BUILD & PUSH (paste entire block)
+
+export AWS_REGION="ap-southeast-1"
+export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+export ECR_REPO_NAME="usdz-glb-lambda"
+export IMAGE_TAG="latest"
+
+aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+
+docker build -t ${ECR_REPO_NAME}:${IMAGE_TAG} .
+
+docker tag ${ECR_REPO_NAME}:${IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}
+
+docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}
+
+echo ""
+echo "✅ Image URI:"
+echo "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}"
+
+7️⃣ COPY THE IMAGE URI - Use it in Lambda Console
+
+8️⃣ TERMINATE EC2 - Stop paying for it!
+
+================================
+Total time: ~15 minutes
+Total cost: ~$0.02 USD
