@@ -20,7 +20,7 @@ from botocore.exceptions import ClientError
 S3_BUCKET = "your-home"
 S3_PREFIX = "staging/floor-plan/"
 CHECK_INTERVAL = 30  # seconds
-TEMP_DIR = "/tmp/usdz-converter"
+TEMP_DIR = os.path.expanduser("~/usdz-converter")
 DELETE_USDZ_AFTER = False
 CONVERSION_TIMEOUT = 1800  # 30 minutes (was 5 minutes)
 MAX_FILE_SIZE_MB = 500  # Warning threshold
@@ -49,6 +49,7 @@ class USDZConverter:
     
     def load_processed_files(self):
         """Load list of already processed files"""
+        os.makedirs(TEMP_DIR, exist_ok=True)
         processed_file = Path(TEMP_DIR) / 'processed.txt'
         if processed_file.exists():
             with open(processed_file, 'r') as f:
@@ -58,6 +59,7 @@ class USDZConverter:
     def save_processed_file(self, key):
         """Save processed file to history"""
         self.processed_files.add(key)
+        os.makedirs(TEMP_DIR, exist_ok=True)
         processed_file = Path(TEMP_DIR) / 'processed.txt'
         with open(processed_file, 'a') as f:
             f.write(f"{key}\n")
